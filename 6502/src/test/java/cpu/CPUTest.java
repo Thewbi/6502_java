@@ -1,4 +1,8 @@
-package main;
+package cpu;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 import control.DefaultControlLogic;
 import instructions.Instructions;
@@ -7,26 +11,37 @@ import registers.Register;
 import statemachine.DefaultStateMachine;
 import statemachine.State;
 
-public class Main {
-
-	public static void main(String[] args) {
-		System.out.println("start");
-
+public class CPUTest {
+	
+	/**
+	 * <ol>
+	 * <li>Given StateMachine State is Decode</li>
+	 * <li>When InstructionRegister contains a ORA instruction</li>
+	 * <li>Then the destination register is A</li>
+	 * </ol>
+	 */
+	@Test
+	public void test_StateDecode_INSNOra_DestRegA() {
+		
+		// Arrange
+		
 		DefaultRegisterFile defaultRegisterFile = new DefaultRegisterFile();
 		defaultRegisterFile.setRegisterValue(Register.IR, Instructions.ORA);
 
 		DefaultStateMachine defaultStateMachine = new DefaultStateMachine();
-//		defaultStateMachine.setState(State.FETCH);
 		defaultStateMachine.setState(State.DECODE);
 
 		DefaultControlLogic defaultControlLogic = new DefaultControlLogic();
 		defaultControlLogic.setStateMachine(defaultStateMachine);
 		defaultControlLogic.setRegisterFile(defaultRegisterFile);
+		
+		// Act
 
 		defaultControlLogic.update();
+		
+		// Assert
 
-		defaultControlLogic.getDestinationRegister();
-
+		assertEquals(Register.A, defaultControlLogic.getDestinationRegister());
 	}
 
 }
