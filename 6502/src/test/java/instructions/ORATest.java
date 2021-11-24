@@ -1,8 +1,11 @@
-package main;
+package instructions;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 import alu.DefaultALU;
 import control.DefaultControlLogic;
-import instructions.Instructions;
 import memory.DefaultMemory;
 import registers.DefaultRegisterFile;
 import registers.Register;
@@ -10,22 +13,19 @@ import statemachine.DefaultStateMachine;
 import statemachine.State;
 import util.FormatUtil;
 
-public class Main {
-
-	public static void main(String[] args) {
-		
-		System.out.println("[Main.java] start");
-		
-		// Arrange
+public class ORATest {
+	
+	/**
+	 * This test will load 0xAA = 10101010 into the Accumulator (A) and
+	 * it will execute the ORA command with the immediate operand 1.
+	 * 
+	 * This will OR the value 1 to the Accumulator and store the result into 
+	 * the accumulator, which yields 10101011 = 0xAB = 171
+	 */
+	@Test
+	public void oraTest() {
 		
 		DefaultMemory memory = new DefaultMemory();
-//		memory.setByte(0, Instructions.ORA);
-//		memory.setByte(1, 0x01);
-//		memory.setByte(2, 0x00);
-//		memory.setByte(3, 0x00);
-//		memory.setByte(4, 0x00);
-//		memory.setByte(5, 0x00);
-		
 		memory.setByte(0, Instructions.ORA);
 		memory.setByte(1, 0x01);
 		memory.setByte(2, Instructions.ORA);
@@ -45,7 +45,6 @@ public class Main {
 
 		DefaultStateMachine defaultStateMachine = new DefaultStateMachine();
 		defaultStateMachine.setState(State.DECODE);
-//		defaultStateMachine.setState(State.FETCH);
 		defaultStateMachine.setRegisterFile(defaultRegisterFile);
 
 		DefaultControlLogic defaultControlLogic = new DefaultControlLogic();
@@ -62,27 +61,20 @@ public class Main {
 		// Act
 
 		int cycle = 0;
-		while (cycle < 9) {
+		while (cycle < 3) {
 			
 			System.out.println(" ");
 			System.out.println("[Main.java] cycle: " + cycle + " state: " + defaultStateMachine.getState());
 		
 			defaultControlLogic.update();
 			
-			// next state
-//			defaultStateMachine.update();
-			
 			defaultControlLogic.computeALUOp();
 			defaultControlLogic.computeALUOperation();
-			
-//			defaultStateMachine.update();
 			
 			defaultControlLogic.computeALUBInput();
 			defaultControlLogic.computeALUAInput();
 			
 			defaultControlLogic.computeWriteRegister();
-			
-//			defaultStateMachine.update();
 			
 			alu.update();
 			
@@ -101,7 +93,14 @@ public class Main {
 			
 			cycle++;
 		}
-
+		
+		// Assert
+		
+		// the CPU will store the result of the ALU operation into the A register
+		assertEquals(Register.A, defaultControlLogic.getDestinationRegister());
+		
+		// the ALU has computed the correct value. 171 0xAB
+		assertEquals(171, alu.getAdd());
 	}
 
 }

@@ -8,6 +8,7 @@ import registers.RegisterFile;
 import statemachine.State;
 import statemachine.StateMachine;
 import util.BitUtil;
+import util.FormatUtil;
 
 public class DefaultControlLogic implements ControlLogic {
 
@@ -270,9 +271,6 @@ public class DefaultControlLogic implements ControlLogic {
 	 */
 	public void computeWriteRegister() {
 		switch (stateMachine.getState()) {
-		
-		
-		
 		case DECODE:
 			registerFile.setRegisterValue(Register.WriteRegister, 1);
 			break;
@@ -284,12 +282,11 @@ public class DefaultControlLogic implements ControlLogic {
 	}
 	
 	public void storeAdd(int add) {
-//		// line 531 - register is only every written, when write_register is active
-//		
-//		// write the output
+		// line 531 - register is only every written, when write_register is active
+		// write the output
 		if (registerFile.getRegisterValue(Register.WriteRegister) == 1) {
 			
-			System.out.println("Storing add " + add + " into register " + destinationRegister);
+			System.out.println("Storing add " + FormatUtil.intToHex(add) + " into register " + destinationRegister);
 			registerFile.setRegisterValue(destinationRegister, add);
 		}
 	}
