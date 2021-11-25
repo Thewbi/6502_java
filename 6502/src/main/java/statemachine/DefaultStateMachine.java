@@ -24,9 +24,13 @@ public class DefaultStateMachine implements StateMachine {
 		case DECODE:
 			state = nextStateAfterDecode();
 			break;
-			
+
 		case FETCH:
 			state = nextStateAfterFetch();
+			break;
+			
+		case REG:
+			state = State.DECODE;
 			break;
 
 		default:
@@ -38,7 +42,7 @@ public class DefaultStateMachine implements StateMachine {
 	 * <pre>
 	 * FETCH   : state <= DECODE;
 	 * </pre>
-	 *  
+	 * 
 	 * @return
 	 */
 	private State nextStateAfterFetch() {
@@ -46,8 +50,8 @@ public class DefaultStateMachine implements StateMachine {
 	}
 
 	/**
-	 * cref https://github.com/Arlet/verilog-6502/blob/master/cpu.v Microcode state
-	 * machine
+	 * cref https://github.com/Arlet/verilog-6502/blob/master/cpu.v - line 859
+	 * Microcode state machine
 	 * 
 	 * @return
 	 */
@@ -55,10 +59,18 @@ public class DefaultStateMachine implements StateMachine {
 
 		int instructionRegisterValue = registerFile.getRegisterValue(Register.IR);
 
-		if (BitUtil.matchesBitPattern("xxx01001", instructionRegisterValue)) {
-			
+		// for all immediate instructions
+		if (BitUtil.matchesBitPattern("1xx000x0", instructionRegisterValue)
+				|| BitUtil.matchesBitPattern("xxx01001", instructionRegisterValue)) {
+
 			// fetch the immediate operand
 			return State.FETCH;
+			
+		} else if (BitUtil.matchesBitPattern("xxxx1010", instructionRegisterValue)) {
+			
+			// <shift> A, TXA, ...  NOP
+			return State.REG;
+			
 		}
 
 		throw new RuntimeException("Not implemented yet!");

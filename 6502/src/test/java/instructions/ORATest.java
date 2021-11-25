@@ -26,9 +26,9 @@ public class ORATest {
 	public void oraTest() {
 		
 		DefaultMemory memory = new DefaultMemory();
-		memory.setByte(0, Instructions.ORA);
+		memory.setByte(0, Instructions.ORA_IMMEDIATE);
 		memory.setByte(1, 0x01);
-		memory.setByte(2, Instructions.ORA);
+		memory.setByte(2, Instructions.ORA_IMMEDIATE);
 		memory.setByte(3, 0x04);
 		memory.setByte(4, 0x00);
 		memory.setByte(5, 0x00);
@@ -39,7 +39,7 @@ public class ORATest {
 		memory.setByte(10, 0x00);
 
 		DefaultRegisterFile defaultRegisterFile = new DefaultRegisterFile();
-		defaultRegisterFile.setRegisterValue(Register.IR, Instructions.ORA);
+		defaultRegisterFile.setRegisterValue(Register.IR, Instructions.ORA_IMMEDIATE);
 		defaultRegisterFile.setRegisterValue(Register.PC, 0);
 		defaultRegisterFile.setRegisterValue(Register.A, 0xAA); // 10101010
 
@@ -71,10 +71,11 @@ public class ORATest {
 			defaultControlLogic.computeALUOp();
 			defaultControlLogic.computeALUOperation();
 			
-			defaultControlLogic.computeALUBInput();
 			defaultControlLogic.computeALUAInput();
+			defaultControlLogic.computeALUBInput();
 			
 			defaultControlLogic.computeWriteRegister();
+			defaultControlLogic.computeLoadOnly();
 			
 			alu.update();
 			

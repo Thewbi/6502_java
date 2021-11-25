@@ -62,8 +62,8 @@ public class DefaultRegisterFile implements RegisterFile {
 		case OP:
 			return op;
 			
-		case WriteRegister:
-			return writeRegister;
+//		case WriteRegister:
+//			return writeRegister;
 
 		default:
 			throw new RuntimeException("Not implemented yet!");
@@ -110,13 +110,19 @@ public class DefaultRegisterFile implements RegisterFile {
 			op = value;
 			break;
 			
-		case WriteRegister:
-			writeRegister = value;
-			break;
+//		case WriteRegister:
+//			writeRegister = value;
+//			break;
 
 		default:
 			throw new RuntimeException("Not implemented yet! register: " + register);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "DefaultRegisterFile [a=" + a + ", x=" + x + ", y=" + y + ", s=" + s + ", pc=" + pc + ", ir=" + ir
+				+ ", di=" + di + "]";
 	}
 
 }

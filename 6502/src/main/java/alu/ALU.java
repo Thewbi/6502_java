@@ -25,4 +25,8 @@ public interface ALU {
 	
 	int getAdd();
 
+	int getZeroFlag();
+
+	int getNegativeFlag();
+
 }

@@ -11,6 +11,6 @@ public enum Register {
 	DI, // DataIn from memory
 	DIMUX, // ???
 	OP, // ALU OP
-	WriteRegister // Determines if value can be put from ALU into registers
+//	WriteRegister // Determines if value can be put from ALU into registers
 
 }

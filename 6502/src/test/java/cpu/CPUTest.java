@@ -26,7 +26,7 @@ public class CPUTest {
 		// Arrange
 		
 		DefaultRegisterFile defaultRegisterFile = new DefaultRegisterFile();
-		defaultRegisterFile.setRegisterValue(Register.IR, Instructions.ORA);
+		defaultRegisterFile.setRegisterValue(Register.IR, Instructions.ORA_IMMEDIATE);
 
 		DefaultStateMachine defaultStateMachine = new DefaultStateMachine();
 		defaultStateMachine.setState(State.DECODE);
