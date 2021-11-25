@@ -73,7 +73,7 @@ public class DefaultStateMachine implements StateMachine {
 			
 		}
 
-		throw new RuntimeException("Not implemented yet!");
+		throw new RuntimeException("Not implemented yet! instructionRegisterValue: " + instructionRegisterValue);
 	}
 
 	public void setRegisterFile(RegisterFile registerFile) {

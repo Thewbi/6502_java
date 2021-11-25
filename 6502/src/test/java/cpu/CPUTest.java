@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import control.DefaultControlLogic;
 import instructions.Instructions;
+import memory.DefaultMemory;
 import registers.DefaultRegisterFile;
 import registers.Register;
 import statemachine.DefaultStateMachine;
@@ -25,8 +26,17 @@ public class CPUTest {
 		
 		// Arrange
 		
+		DefaultMemory memory = new DefaultMemory();
+		memory.setByte(0, Instructions.LDX_IMMEDIATE);
+		memory.setByte(1, 0x01);
+		memory.setByte(2, Instructions.NOP);
+		memory.setByte(3, Instructions.NOP);
+		memory.setByte(4, Instructions.NOP);
+		memory.setByte(5, Instructions.NOP);
+		
 		DefaultRegisterFile defaultRegisterFile = new DefaultRegisterFile();
 		defaultRegisterFile.setRegisterValue(Register.IR, Instructions.ORA_IMMEDIATE);
+		defaultRegisterFile.setRegisterValue(Register.PC, 0);
 
 		DefaultStateMachine defaultStateMachine = new DefaultStateMachine();
 		defaultStateMachine.setState(State.DECODE);
@@ -34,10 +44,14 @@ public class CPUTest {
 		DefaultControlLogic defaultControlLogic = new DefaultControlLogic();
 		defaultControlLogic.setStateMachine(defaultStateMachine);
 		defaultControlLogic.setRegisterFile(defaultRegisterFile);
+		defaultControlLogic.setMemory(memory);
 		
 		// Act
 
-		defaultControlLogic.update();
+//		defaultControlLogic.update();
+		defaultControlLogic.determineDestinationRegister();
+		defaultControlLogic.computeDataIn();
+		defaultControlLogic.updateDimux();
 		
 		// Assert
 

@@ -54,36 +54,43 @@ public class DefaultControlLogic implements ControlLogic {
 	
 	// doing BIT zp/abs 
 	private int bit_ins;
+	
+	private int IRHOLD_valid = 0;
 
-	public void update() {
-		determineDestinationRegister();
-		fetch();
-		updateDimux();
-	}
+//	public void update() {
+//		determineDestinationRegister();
+//		fetch();
+//		updateDimux();
+//	}
 
 	/**
 	 * https://github.com/Arlet/verilog-6502/blob/master/cpu.v - line 857
 	 * 
 	 * wire [7:0] DIMUX; assign DIMUX = ~RDY ? DIHOLD : DI;
 	 */
-	private void updateDimux() {
+	public void updateDimux() {
 		// copy DI (Data In) into DIMUX register
 		//
 		// DIMUX sits in front of the ALU B Input parameter
-		registerFile.setRegisterValue(Register.DIMUX, registerFile.getRegisterValue(Register.DI));
+		int diValue = registerFile.getRegisterValue(Register.DI);
+		registerFile.setRegisterValue(Register.DIMUX, diValue);
 	}
 
-	private void fetch() {
-		if (stateMachine.getState() != State.FETCH) {
-			return;
-		}
+	/**
+	 * ???
+	 */
+	public void computeDataIn() {
+//		if (stateMachine.getState() != State.FETCH) {
+//			return;
+//		}
 
 		// load the value from memory that PC points to into DI (DI = DataIn, Interface
 		// to the memory)
 		// input [7:0] DI; // data in, read bus
 
 		// fetch data from memory
-		int value = memory.getByte(registerFile.getRegisterValue(Register.PC));
+		int pc = registerFile.getRegisterValue(Register.PC);
+		int value = memory.getByte(pc);
 
 		// write data into the DI (Data In) register
 		registerFile.setRegisterValue(Register.DI, value);
@@ -112,7 +119,7 @@ public class DefaultControlLogic implements ControlLogic {
 	 *    endcase
 	 * </pre>
 	 */
-	private void determineDestinationRegister() {
+	public void determineDestinationRegister() {
 
 		if (stateMachine.getState() != State.DECODE) {
 			return;
@@ -168,7 +175,6 @@ public class DefaultControlLogic implements ControlLogic {
 	public void updatePC() {
 		int newPC = registerFile.getRegisterValue(Register.PC) + pcIncrement;
 		registerFile.setRegisterValue(Register.PC, newPC);
-
 	}
 
 	/**
@@ -187,8 +193,20 @@ public class DefaultControlLogic implements ControlLogic {
 			break;
 
 		case DECODE:
-			// TODO: this seems odd, why does it work?
-			if (load_only == 0) {
+//			// TODO: this seems odd, why does it work?
+//			if (load_only == 0) {
+//				alu.setInputA(registerFile.getRegisterValue(destinationRegister));
+//			}
+			
+			// correct for LDA test
+//			alu.setInputA(0);
+			
+			// correct for ORA test
+//			alu.setInputA(registerFile.getRegisterValue(destinationRegister));
+			
+			if (load_only == 1) {
+				alu.setInputA(0);
+			} else {
 				alu.setInputA(registerFile.getRegisterValue(destinationRegister));
 			}
 			break;
@@ -245,6 +263,8 @@ public class DefaultControlLogic implements ControlLogic {
 			break;
 
 		case DECODE:
+//			alu.setInputB(0);
+			alu.setInputB(registerFile.getRegisterValue(Register.DIMUX));
 			break;
 
 		default:
@@ -262,25 +282,25 @@ public class DefaultControlLogic implements ControlLogic {
 
 		ALU_OP op = ALU_OP.UNKNOWN;
 
-		if (BitUtil.matchesBitPattern("00xxxx10", instructionRegisterValue)) {
+		if (BitUtil.matchesBitPattern("00xxxx10", instructionRegisterValue)) { // ROL, ASL
 			// ROL
 			op = ALU_OP.UNKNOWN;
-		} else if (BitUtil.matchesBitPattern("0010x100", instructionRegisterValue)) {
+		} else if (BitUtil.matchesBitPattern("0010x100", instructionRegisterValue)) { // BIT zp/abs
 			// AND
 			op = ALU_OP.AND;
-		} else if (BitUtil.matchesBitPattern("01xxxx10", instructionRegisterValue)) {
+		} else if (BitUtil.matchesBitPattern("01xxxx10", instructionRegisterValue)) { // ROR, LSR
 			// A
 			op = ALU_OP.UNKNOWN;
-		} else if (BitUtil.matchesBitPattern("10001000", instructionRegisterValue)
-				|| BitUtil.matchesBitPattern("11001010", instructionRegisterValue)
-				|| BitUtil.matchesBitPattern("110xx110", instructionRegisterValue)
-				|| BitUtil.matchesBitPattern("11xxxx01", instructionRegisterValue)
-				|| BitUtil.matchesBitPattern("11x00x00", instructionRegisterValue)
+		} else if (BitUtil.matchesBitPattern("10001000", instructionRegisterValue) // DEY
+				|| BitUtil.matchesBitPattern("11001010", instructionRegisterValue) // DEX
+				|| BitUtil.matchesBitPattern("110xx110", instructionRegisterValue) // DEC 
+				|| BitUtil.matchesBitPattern("11xxxx01", instructionRegisterValue) // CMP, SBC
+				|| BitUtil.matchesBitPattern("11x00x00", instructionRegisterValue) // CPX, CPY (imm, zpg)
 				|| BitUtil.matchesBitPattern("11x01100", instructionRegisterValue)) {
 			// SUB
 			op = ALU_OP.SUB;
-		} else if (BitUtil.matchesBitPattern("010xxx01", instructionRegisterValue)
-				|| BitUtil.matchesBitPattern("00xxxx01", instructionRegisterValue)) {
+		} else if (BitUtil.matchesBitPattern("010xxx01", instructionRegisterValue) // EOR
+				|| BitUtil.matchesBitPattern("00xxxx01", instructionRegisterValue)) { // ORA, AND
 			// OR
 			op = ALU_OP.OR;
 		} else {
@@ -392,6 +412,8 @@ public class DefaultControlLogic implements ControlLogic {
 	 * line 525
 	 */
 	public void writeRegister(int value) {
+		
+		// write_register is true, when 
 		if (write_register != 1) {
 			return;
 		}
@@ -399,7 +421,7 @@ public class DefaultControlLogic implements ControlLogic {
 		switch (regsel) {
 
 		case A:
-//			System.out.println("writeRegister A value: " + value);
+			System.out.println("writeRegister A value: " + value);
 			registerFile.setRegisterValue(Register.A, value);
 			break;
 
@@ -553,6 +575,50 @@ public class DefaultControlLogic implements ControlLogic {
 		if (BitUtil.matchesBitPattern("0010x100", instructionRegisterValue)) { // BIT zp/abs 
 			bit_ins = 1;
 		}
+	}
+	
+	/**
+	 * line 850
+	 * 
+	 * <pre>
+	 * always @(posedge clk )
+     * if( reset )
+     *    IRHOLD_valid <= 0;
+     * else if( RDY ) begin
+     *    if( state == PULL0 || state == PUSH0 ) begin
+     *        IRHOLD <= DIMUX;
+     *        IRHOLD_valid <= 1;
+     *    end else if( state == DECODE )
+     *        IRHOLD_valid <= 0;
+     * end
+     */
+	public void updateIRHoldValid() {
+		
+		if (stateMachine.getState() == State.DECODE) {
+			IRHOLD_valid = 0;
+		}
+		
+	}
+	/*
+     * assign IR = (IRQ & ~I) | NMI_edge ? 8'h00 :
+     *                 IRHOLD_valid ? IRHOLD : DIMUX;
+	 * </pre>
+	 */
+	public void updateIR() {
+		
+		// TODO: added by me
+//		if (stateMachine.getState() != State.DECODE) {
+		if (stateMachine.getState() != State.FETCH) {
+			return;
+		}
+		
+//		int dataInRegisterValue = registerFile.getRegisterValue(Register.DI);
+		int dimuxRegisterValue = registerFile.getRegisterValue(Register.DIMUX);
+		int irHoldRegisterValue = registerFile.getRegisterValue(Register.IRHOLD);
+		
+		int newValue = (IRHOLD_valid == 1) ? irHoldRegisterValue : dimuxRegisterValue;
+		
+		registerFile.setRegisterValue(Register.IR, newValue);
 	}
 
 	public void setStateMachine(StateMachine stateMachine) {

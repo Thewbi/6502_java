@@ -30,6 +30,8 @@ public class DefaultRegisterFile implements RegisterFile {
 	private int op = -1;
 	
 	private int writeRegister = -1;
+	
+	private int irhold = -1;
 
 	public int getRegisterValue(Register register) {
 
@@ -64,6 +66,9 @@ public class DefaultRegisterFile implements RegisterFile {
 			
 //		case WriteRegister:
 //			return writeRegister;
+			
+		case IRHOLD:
+			return irhold;
 
 		default:
 			throw new RuntimeException("Not implemented yet!");
@@ -113,6 +118,10 @@ public class DefaultRegisterFile implements RegisterFile {
 //		case WriteRegister:
 //			writeRegister = value;
 //			break;
+			
+		case IRHOLD:
+			irhold = value;
+			break;
 
 		default:
 			throw new RuntimeException("Not implemented yet! register: " + register);
@@ -121,7 +130,7 @@ public class DefaultRegisterFile implements RegisterFile {
 
 	@Override
 	public String toString() {
-		return "DefaultRegisterFile [a=" + a + ", x=" + x + ", y=" + y + ", s=" + s + ", pc=" + pc + ", ir=" + ir
+		return "DefaultRegisterFile [a=" + a + ", x=" + x + ", y=" + y + ", s=" + s + ", pc=" + pc + ", ir=" + ir + ", irhold=" + irhold
 				+ ", di=" + di + "]";
 	}
 

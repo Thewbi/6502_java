@@ -17,7 +17,6 @@ public class BitUtilTest {
 
 		assertFalse(BitUtil.matchesBitPattern("0", 1));
 		assertFalse(BitUtil.matchesBitPattern("1", 0));
-
 	}
 
 	@Test
@@ -36,7 +35,6 @@ public class BitUtilTest {
 
 		assertFalse(BitUtil.matchesBitPattern("00", 1));
 		assertFalse(BitUtil.matchesBitPattern("01", 0));
-
 	}
 	
 	@Test
